@@ -1,3 +1,6 @@
+list = ["TEST", "ERROR"]
+print ("ERROR" in list)
+
 
 ###
 print("Hello Canonical")
@@ -59,6 +62,7 @@ if server["cpu"] > 80 and server["memory"] > 80:
 else:
     print("Healthy")
     
+
 
 
 

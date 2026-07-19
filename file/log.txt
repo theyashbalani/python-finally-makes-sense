@@ -1,0 +1,10 @@
+2026-07-18 08:01:23 INFO  [Server] Application started successfully on port 8080.
+2026-07-18 08:02:15 WARN  [Database] Connection pool is reaching maximum capacity (85%).
+2026-07-18 08:03:45 ERROR [Auth] Failed login attempt for user 'admin' from IP 192.168.1.50.
+2026-07-18 08:05:12 INFO  [User] User 'johndoe' successfully authenticated.
+2026-07-18 08:10:00 ERROR [Database] Connection timeout timed out while fetching user records.
+2026-07-18 08:12:33 DEBUG [Cache] Cache miss for key: user_session_99234.
+2026-07-18 08:15:22 ERROR [Payment] Gateway rejected transaction: 402 Payment Required.
+2026-07-18 08:16:01 WARN  [API] Deprecated endpoint /api/v1/users called by external client.
+2026-07-18 08:20:19 ERROR [System] OutOfMemoryError: Java heap space depleted.
+2026-07-18 08:22:00 INFO  [Server] Periodic health check passed safely.

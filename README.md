@@ -767,6 +767,7 @@ print(f"Hello {name}")
 ## List & Tuple Manipulation
 
 - Lists help us process collections of things.
+- Instead of storing each value separately, you group them together and can process them with a single loop.
 - Lists are **mutable**, meaning they can be changed after creation.
 - Tuples are **immutable**, meaning they cannot be changed after creation.
 
@@ -779,4 +780,241 @@ tuple_example[0] = 10  # This is invalid
 
 # Output:
 # TypeError: 'tuple' object does not support item assignment
+```
+
+### Common List Methods
+
+```python
+servers = ["web", "db"]
+servers.append("cache") # ['web', 'db', 'cache'] Appends an element to the end of the list
+servers.extend(["cache", "db2"]) # ['web', 'db', 'cache', 'db2'] Adds multiple elements to the end of the list
+
+
+servers = ["web", "db"]
+servers.insert(1, "cache") # ['web', 'cache', 'db'] Inserts an element at a specific index
+
+servers = ["web", "db", "cache"]
+servers.remove("cache") # ['web', 'db'] Removes the first occurrence of an element
+
+servers = ["web", "db", "cache"]
+last = servers.pop()
+print(last) # cache Removes and returns the last element
+print(servers) # ["web", "db"]
+
+servers = ["web", "db", "cache"]
+servers.pop(1) # db Removes and returns the element at a specific index
+print(servers) # ["web", "cache"]
+
+servers = ["web", "db", "cache"]
+servers.index("cache") # 2 Returns the index of the first occurrence of an element
+print(servers) # ["web", "db", "cache"]
+
+servers = ["web", "db", "cache"]
+servers.count("cache") # Returns the number of occurrences of an element
+print(servers) # ["web", "db", "cache"]
+
+servers = ["web", "db", "cache"]
+servers.sort() # Sorts the list in place
+# sorted() creates a new sorted list
+print(servers) # ["cache", "db", "web"]
+
+servers = ["web", "db", "cache"]
+servers.reverse() # Reverses the list in place
+print(servers) # ["cache", "db", "web"]
+
+servers = ["web", "db", "cache"]
+servers.clear() # Removes all elements from the list
+print(servers) # []
+
+servers = ["web", "db", "cache"]
+new = servers.copy() # Returns a shallow copy of the list
+print(new) # ["web", "db", "cache"]
+
+servers = ["web", "db", "cache"]
+len(servers) # 3 Returns the number of elements in the list
+```
+
+- Preserving order helps you reconstruct the sequence of events and identify the root cause. If the alerts are reordered, troubleshooting becomes more difficult.
+- Preserve order whenever the sequence reflects: **Dependencies, Time, Execution order, Priority, Event chronology**
+- When Python creates a list, it stores `Pointer to items`, `Capacity` and `Current length`. `len()` simply reads the stored number, hence `len()` considered an O(1) operation
+- **Time Complexity O(1)** means that the time taken to perform the operation does not depend on the size of the input.
+
+### Iterating with enumerate()
+
+- `enumerate()` adds a counter to an iterable.
+- It returns pairs of (index, value).
+- This is useful for loops where you need both the index and the value.
+
+```python
+servers = ["web", "db", "cache"]
+
+for index, server in enumerate(servers):
+    print(index, server)
+
+# Output:
+# 0 web
+# 1 db
+# 2 cache
+```
+
+### Membership Testing
+
+- Membership testing is used to check if an element exists in a sequence.
+
+```python
+servers = ["web", "db", "cache"]
+
+if "db" in servers:
+    print("Database server found")
+
+# Output:
+# Database server found
+```
+
+## Dictionary Manipulation
+
+- The data is self-describing by storing key-value pairs
+- A dictionary is designed for fast lookup.
+- Each key acts like a unique identifier. If duplicate keys were allowed, Python wouldn't know which value to return
+- Internally, dictionaries use a hash table.
+
+```
+Key
+↓
+Memory Location
+↓
+Value
+```
+
+- Use a List when you care about:
+  - Position
+  - Order
+  - Sequence
+
+- Use a Dictionary when you care about:
+  - Meaning
+  - Labels
+  - Attributes
+
+- Nested dictionaries naturally represent hierarchical systems.
+- Nested dictionaries mirror the structure of real infrastructure.
+
+```
+Pod
+│
+├── metadata
+│      ├── name
+│      └── namespace
+│
+├── status
+│      ├── phase
+│      └── IP
+│
+└── spec
+       ├── containers
+       └── node
+```
+
+- APIs are not guaranteed to return every field. Sometimes fields are Missing, Null, Optional or Version dependent.
+- Use `dict.get(key, default_value)` instead of `dict[key]` to avoid `KeyError`.
+- Production systems should fail gracefully. Defensive programming is a hallmark of good SRE code.
+
+- A fleet contains multiple servers. Each server has multiple properties. The natural representation is "List of dictionaries"
+
+```python
+server = {
+    "hostname": "prod-1",
+    "cpu": 81,
+    "memory": 72
+}
+
+print(server["hostname"]) # prod-1
+print(server["disk"]) # KeyError
+
+disk = server.get("disk", 50) # If the key is not found, it returns the default value (no default value then returns None)
+print(disk) # 50
+
+server["disk"] = 80 # Python adds the key if it doesn't exist; otherwise, it updates the value.
+server["cpu"] = 91
+
+memory = server.pop("memory") # Removes the key-value pair and returns the value.
+del server["cpu"] # Removes the key-value pair
+```
+
+### Dictionary Iteration
+
+```python
+for key in server: # keys only
+    print(key)
+
+for key in server.keys(): # keys only
+    print(key)
+
+for value in server.values(): # values only
+    print(value)
+
+for key, value in server.items(): # both
+    print(key, value)
+
+
+server = {
+    "hostname": "prod-1",
+    "cpu": 81,
+    "memory": 72
+}
+
+server_copy = server.copy()
+server_copy["disk"] = 50
+
+print(server)
+print(server_copy)
+```
+
+## File Handling
+
+- Automation scripts rarely work only with variables in memory. They constantly interact with files such as:
+  - Log files
+  - Configuration files
+  - Inventory files
+  - Backup manifests
+  - Kubernetes YAML
+  - Environment files
+  - CSV reports
+
+- Built-in `open()` function returns a file object. Syntax: `open(file_path, mode)`
+  - `file_path`: The path to the file you want to open.
+  - `mode`: The mode in which you want to open the file. Common modes are:
+    - `"r"`: Read (default)
+    - `"w"`: Write (overwrites existing content)
+    - `"a"`: Append (adds to the end of the file without deleting existing content)
+
+- Never assume external resources will always be available. **Treat file operations as potentially unreliable and handle failures explicitly.**
+
+```python
+file = open("servers.txt", "r") # Open a file in read mode.
+content = file.read() # returns the entire contents of the file as one string.
+file.close() # Manually closes the file, If an exception occurs before close(), the file remains open
+
+with open("servers.txt", "r") as file: # When the with block ends, with automatically closes the file.
+    content = file.read() # Reads the entire file into memory at once. Suitable for small files.
+
+with open("servers.txt", "r") as file: # Preferred for log files because it uses less memory.
+    for line in file: # Reads one line at a time
+        print(line.strip()) # Removes leading/trailing whitespace, including newline characters.
+
+with open("report.txt", "w") as file: # Create a new file for writing. If the file already exists, its content is overwritten.
+    file.write("Deployment Successful\n")
+    file.write("Disk usage: 80%")
+
+
+with open("report.txt", "a") as file: # Appends content in the end to an existing file. If the file does not exist, it creates a new one.
+    file.write("\nDisk usage: 90%")
+
+# Reading from non-existent files causes FileNotFoundError.
+# Use try-except blocks to handle potential errors gracefully.
+try: # Try to open and read the file.
+    with open("servers.txt", "r") as file: # If the file does not exist, it raises FileNotFoundError
+        print(file.read())
+except FileNotFoundError: # Catches the FileNotFoundError and prints a friendly message.
+    print("File not found")
 ```
