@@ -130,3 +130,184 @@ server.restart() # Restarting web-1
 - Use a dictionary when you simply need to store data.
 - Use a class when the object has both **state (data/attributes)** and **behavior (methods)**.
 - Many Python libraries you'll use are object-oriented. Instead of returning plain dictionaries, they often return objects with methods.
+
+# Python Modules & Packages
+
+- Modules let you split code into logical pieces.
+- It is simply a Python file (.py) containing code.
+- Each module has a single responsibility. It follows the Single Responsibility Principle (SRP) and makes it easier to test, debug, review, reuse and easier for multiple engineers to work on simultaneously.
+- Python find modules in a specific order.
+- If Python cannot find a module, you'll get `ModuleNotFoundError` which often caused by:
+  - wrong folder
+  - missing installation
+  - incorrect virtual environment
+
+```python
+
+Import
+
+↓
+
+Current Folder
+
+↓
+
+Installed Packages
+
+↓
+
+Standard Library
+
+↓
+
+sys.path
+
+# Directories listed in
+import sys
+print(sys.path)
+# These paths tell Python where else to search.
+
+```
+
+```python
+
+# health.py
+def check_cpu(cpu):
+    return cpu < 80
+
+# main.py
+import health
+print(health.check_cpu(42))
+```
+
+- You can also import specific functions or classes.
+
+```python
+from math import sqrt
+print(sqrt(16)) # don't need the module name
+# Output: 4.0
+
+import math as m # alias
+
+print(m.pi) # Useful for long module names
+```
+
+- A package is a directory containing related modules.
+- Packages help organize larger applications.
+- Each file has one clear responsibility, making the codebase easier to test, review, and maintain.
+
+```
+automation/
+
+    __init__.py
+
+    aws.py
+
+    kubernetes.py
+
+    logging.py
+```
+
+```python
+from automation import aws
+```
+
+## Standard Python Library Modules for SRE
+
+- Python comes with many built-in modules. Here are some useful for SRE:
+  - **os**: Interact with the operating system.
+
+  ```python
+    import os
+    print(os.getcwd()) # Current working directory
+
+  ```
+
+  - **pathlib**: Handle file paths. (Modern approach, object-oriented, cleaner than os.path)
+
+  ```python
+  from pathlib import Path
+
+  config = Path("config.yaml") # object, not a string
+
+  print(config.name) # config.yaml
+
+  from pathlib import Path
+  path = Path("/var") / "logs" / filename # automatically builds the correct path. Cleaner and cross-platform
+
+  ```
+
+  - **sys**: Interact with the Python interpreter.
+
+  ```python
+  import sys
+
+    print(sys.version) # Python version
+  ```
+
+  - **requests**: Make HTTP requests to interact with APIs.
+
+  ```python
+  import requests #
+
+  resp = requests.get("https://google.com")
+  print(resp.status_code) # 200
+  ```
+
+  - **json**: Work with JSON data (APIs return JSON).
+
+  ```python
+  import json
+
+  data = {"name": "web-1", "cpu": 42}
+  print(json.dumps(data)) # {"name": "web-1", "cpu": 42}
+
+  data = json.loads('{"cpu": 81}')
+  print(data["cpu"]) # 81
+  ```
+
+  - **re**: Work with regular expressions.
+
+  ```python
+  import re
+
+  print(re.search(r"\d+", "web-1")) # <re.Match object; span=(3, 4), match='1'>
+  ```
+
+  - **subprocess**: Run external commands.
+
+  ```python
+  import subprocess
+
+  subprocess.run(["ls", "-l"]) #
+  ```
+
+  - **logging**: Application logging.
+
+  ```python
+  import logging
+
+  logging.warning("This is a warning")
+  logging.error("This is an error")
+  logging.critical("This is a critical error")
+  ```
+
+  - **datetime**: Work with dates and times.
+
+  ```python
+  import datetime
+
+  now = datetime.datetime.now()
+  print(now) # 2026-07-21 15:29:35.849553
+  ```
+
+  - **time**: For timestamps
+
+  ```python
+  import time
+
+  print(time.time()) # 1753130975.849553
+  time.sleep(5) #
+  ```
+
+  -
