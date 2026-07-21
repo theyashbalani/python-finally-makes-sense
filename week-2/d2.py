@@ -35,14 +35,10 @@ from os import getcwd
 print(getcwd())
 
 ###
-from health import cpu_ok
-status = cpu_ok(80)
+from automation import health
+status = health.cpu_ok(80)
 print(status)
 print(type(status))
-
-###
-from automation import aws
-
 
 ###
 import json
