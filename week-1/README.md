@@ -1,3 +1,5 @@
+# Python Fundamentals
+
 ## Python Compiler Phases
 
 Python is an interpreted, high-level language executed by the Python Virtual Machine.
@@ -1018,3 +1020,103 @@ try: # Try to open and read the file.
 except FileNotFoundError: # Catches the FileNotFoundError and prints a friendly message.
     print("File not found")
 ```
+
+## Exception Handling
+
+- In the real world, your code interacts with systems you don't fully control. A good SRE writes software that expects failures and handles them predictably.
+  - Files may be missing.
+  - APIs may be unavailable.
+  - Networks may fail.
+  - Users may provide invalid input.
+  - Cloud resources may not exist.
+
+- An **Exception** is an object that represents an error occurring during program execution.
+- **Exception handling** gives you two capabilities:
+  - Keep your program running.
+  - Do something safe instead of crashing.
+
+- Catch an exception only if your code knows how to recover from it. Otherwise, let it propagate to a higher level where it can be handled appropriately.
+  - Suppose Kubernetes API returns `Unauthorized`
+  - Your script cannot magically fix authentication.
+  - The exception should reach the deployment controller, which can:
+    - Log the error
+    - Notify engineers
+    - Stop deployment
+
+- Catching `Exception` is appropriate only at the top level of an application, where the goal is to:
+  - Log the failure
+  - Clean up resources
+  - Exit gracefully
+- It should not be the default way of handling errors throughout your code.
+
+```python
+
+try: # try the code in this block and monitor for exceptions
+    value = int(input("Enter a number: "))
+    result = 10 / value
+
+    # It's sometimes useful to proactively raise an exception when you detect an invalid state.
+    if value == 0:
+        raise ValueError("Division by zero error")
+
+# If the specified exception occurs, control moves to the matching except block
+except ValueError as e: # store the exception object in a variable
+    print(e) # print the exception object
+
+except ZeroDivisionError:
+    print("Zero is not allowed.")
+
+else: # executes only if no exceptions are raised in the try block
+    print("division successful")
+    print(result)
+
+finally: # always executes regardless of whether an exception was raised or not
+    print("Execution completed")
+```
+
+- **Built-in Exceptions:** Choosing a specific exception type that fits your context helps write cleaner, more maintainable code
+  - `ValueError`: Triggered when a function receives an argument of the correct type but an inappropriate value.
+    ```python
+    if age < 0:
+        raise ValueError("Age cannot be negative.")
+    ```
+  - `TypeError`: Triggered when an operation or function is applied to an object of an inappropriate type.
+    ```python
+    if type(value) is not int:
+        raise TypeError("Value must be an integer.")
+    ```
+  - `IndexError`: Raised when accessing a sequence index that is out of bounds.
+    ```python
+    if index < 0 or index >= len(sequence):
+        raise IndexError("Index out of range.")
+    ```
+  - `KeyError`: Raised when accessing a non-existent key in a dictionary.
+  - `RuntimeError`: Raised when an appropriate exception is not found.
+
+- **SRE Rule**: Assume every external system can fail. Validate before you trust.
+
+- Production environments are unpredictable. Good automation:
+  - validates inputs
+  - checks assumptions
+  - handles failures
+  - logs useful information
+  - exits safely
+
+- Cloud APIs are external systems. External systems are never 100% reliable.
+- Cloud API common failures:
+  - `timeout` (The request took too long)
+  - `auth_error` (Bad credentials or insufficient permissions or expired token)
+  - `permission_error` (You don't have access to this resource)
+  - `resource_not_found` (You asked for a VM that doesn't exist)
+  - `rate_limit_exceeded` (You hit the API usage cap)
+  - `server_error` (Something went wrong on the API's end)
+  - `temporary outage` (Cloud provider is having issues)
+  - `invalid request` (The API rejected your input)
+
+- A good error message answers three questions:
+  - What failed?
+  - Why did it fail?
+  - What should the user do next?
+  - **Examples:**
+    - Deployment failed because Kubernetes API returned 401 Unauthorized. Verify that KUBECONFIG points to the correct cluster and that your credentials have not expired.
+    - Failed to create VM: 502 Bad Gateway. Cloud API is likely experiencing temporary issues. Please try again in 5 minutes.
