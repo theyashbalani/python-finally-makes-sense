@@ -310,4 +310,209 @@ from automation import aws
   time.sleep(5) #
   ```
 
-  -
+## Iterators and Generators
+
+- Iterators and Generators let Python process data one item at a time.
+
+- An iterable is anything you can loop over.
+
+```python
+servers = ["web", "db", "cache"]
+
+text = "Canonical"
+
+server = {
+    "hostname": "web-1"
+}
+
+for item in iterable:
+    ...
+```
+
+- An iterator produces values one at a time.
+
+```python
+servers = ["web", "db", "cache"]
+
+it = iter(servers)
+
+print(next(it)) # web
+print(next(it)) # db
+print(next(it)) # cache
+print(next(it)) # StopIteration Error
+```
+
+- A generator is a special type of iterator created with the `yield` keyword. Instead of returning everything at once, it pauses and resumes execution.
+
+```python
+
+def numbers():
+    yield 1
+    yield 2
+    yield 3
+
+for n in numbers():
+    print(n)
+
+# Output
+# 1
+# 2
+# 3
+```
+
+### return vs yield
+
+```python
+def values():
+    return [1, 2, 3] # The entire list is created before it is returned.
+
+def generator():
+    yield 1
+    yield 2
+    yield 3 # Values are produced one at a time. (Memory Efficient)
+```
+
+```python
+def read_logs(filename):
+    with open(filename) as file:
+        for line in file:
+            yield line.strip()
+```
+
+### Lazy Evaluation
+
+- Generators don't compute values until requested.
+- Useful for large datasets.
+- Saves memory.
+- Ideal for streaming data.
+
+```
+Generator
+
+↓
+
+next()
+
+↓
+
+Compute one value
+
+↓
+
+Pause
+
+↓
+
+next()
+
+↓
+
+Compute next value
+```
+
+- Many production systems expose data as streams:
+  - Log files
+  - Kafka topics
+  - API pagination
+  - Monitoring events
+  - Message queues
+
+- Generators let you process these streams without exhausting system memory.
+
+## Python Comprehension
+
+- Many programming tasks involve:
+  - filtering
+  - transforming
+  - collecting
+- Comprehensions express these operations clearly.
+- Python provides a shorter and often more readable way.
+
+- Use a list comprehension when you want to build a new list by transforming or filtering items from an existing iterable.
+- Use a traditional loop when the logic is complex or involves multiple actions.
+- If you need to explain your comprehension, write a loop instead.
+
+```python
+
+cpu_values = [35, 81, 92, 61]
+
+overloaded = []
+
+for cpu in cpu_values: # 1. Loop
+    if cpu > 80: # 2. Filter
+        overloaded.append(cpu) # 3. Collect
+
+overloaded = [cpu for cpu in cpu_values if cpu > 80] # loop + filter + collect
+
+######
+
+servers = [
+    {"hostname":"web", "cpu":42},
+    {"hostname":"db", "cpu":91},
+    {"hostname":"cache", "cpu":61}
+]
+
+overloaded = [ s["hostname"] for s in servers if s["cpu"] > 80 ] # ["db"]
+```
+
+### List Comprehensions
+
+- Use list comprehensions when you are building a new list from an existing iterable.
+- For every item, produce a value.
+- Syntax: `[expression for item in iterable if condition]`
+
+```python
+numbers = [1,2,3,4]
+
+squares = [ n*n for n in numbers ] #[1,4,9,16]
+
+evens = [ n for n in numbers if n % 2 == 0 ] # [2,4]
+```
+
+### Dictionary Comprehensions
+
+- Use when creating a new dictionary from an iterable.
+- When each item naturally maps to a key-value pair.
+- Syntax: `{key_expr: value_expr for item in iterable if condition}`
+
+```python
+servers = ["web","db","cache"]
+
+mapping = { s: "Running" for s in servers }
+# {"web":"Running","db":"Running","cache":"Running"}
+```
+
+### Set Comprehensions
+
+- Sets automatically remove duplicates.
+- Choose a set comprehension when uniqueness matters more than order.
+
+```python
+servers = [
+    "web",
+    "db",
+    "web",
+    "cache"
+]
+
+unique = { s for s in servers } # {"cache", "db", "web"}
+```
+
+### Generator Expressions
+
+- A list comprehension creates the entire list immediately. A generator expression creates values one at a time.
+- Lists store everything. Generators calculate values only when requested.
+- A generator expression returns a generator object. It does not return a list.
+- They look similar but use parentheses `( )` instead of brackets `[ ]`.
+- They return a generator object, not a list.
+- Generator expressions are memory-efficient.
+- Use generator expressions for very large datasets.
+
+```python
+[ n*n for n in numbers ] # list comprehension
+( n*n for n in numbers) # generator
+```
+
+### When NOT to Use Comprehensions
+
+- Readability is more important than writing fewer lines.
